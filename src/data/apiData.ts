@@ -1,7 +1,7 @@
 export class ApiData {
   static backendEndpoint = import.meta.env.DEV
     ? "http://localhost:1337"
-    : "https://api.hilmy.dev";
+    : "https://hilmy.dev/_/blog";
   static graphqlEndpoint = `${this.backendEndpoint}/graphql`;
 
   static graphqlToken =

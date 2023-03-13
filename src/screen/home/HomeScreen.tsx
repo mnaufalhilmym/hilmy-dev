@@ -307,19 +307,13 @@ function manipulatePostsData({
     const date = moment(data.attributes.datetime);
     const year = date.format("YYYY");
     const index = processedPostData.findIndex((pdata) => pdata.year === year);
+    const day = Number(date.format("DD"));
     if (index === -1) {
       processedPostData.push({
         year,
         posts: [],
       });
-      data.attributes.post_tags.data.findIndex((tag) => {
-        const index = tags.indexOf(tag.attributes.title);
-        if (index === -1) {
-          tags.push(tag.attributes.title);
-        }
-      });
     }
-    const day = Number(date.format("DD"));
     processedPostData[
       index === -1 ? processedPostData.length - 1 : index
     ].posts.push({
@@ -327,6 +321,12 @@ function manipulatePostsData({
       title: data.attributes.title,
       dayAndMonth: `${date.format("MMM")} ${day < 10 ? `0${day}` : day}`,
       tags: data.attributes.post_tags.data.map((tag) => tag.attributes.title),
+    });
+    data.attributes.post_tags.data.findIndex((tag) => {
+      const index = tags.indexOf(tag.attributes.title);
+      if (index === -1) {
+        tags.push(tag.attributes.title);
+      }
     });
   });
   return { postData: processedPostData, tags };
