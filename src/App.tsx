@@ -1,9 +1,10 @@
 import { Navigate, RouteDefinition, useRoutes } from "@solidjs/router";
 import { Component, createRenderEffect, lazy } from "solid-js";
-import Head from "./component/head/head";
+import Head from "./component/head/Head";
 import { DarkModeData } from "./data/darkModeData";
-import { SiteHead } from "./data/siteHead";
 import { SitePathData } from "./data/sitePathData";
+import SiteHead from "./data/siteHead";
+import { GqlClient } from "./api/gqlClient";
 
 const routes: RouteDefinition[] = [
   {
@@ -62,8 +63,9 @@ const App: Component = () => {
   const Routes = useRoutes(routes);
 
   createRenderEffect(() => {
-    SiteHead.init();
+    GqlClient.init();
     DarkModeData.init();
+    SiteHead.init();
   });
 
   return (

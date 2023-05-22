@@ -10,17 +10,16 @@ import {
   Show,
 } from "solid-js";
 import toast from "solid-toast";
-import { GraphQLClient } from "../../api/graphqlClient";
+import { GqlClient } from "../../api/gqlClient";
 import EmptyIndicator from "../../component/indicator/EmptyIndicator";
-import LoadingSpinner from "../../component/loadingSpinner/LoadingSpinner";
-import { ApiData } from "../../data/apiData";
 import { DarkModeData } from "../../data/darkModeData";
-import { SiteHead } from "../../data/siteHead";
 import { SitePathData } from "../../data/sitePathData";
 import styles from "./PostScreen.module.css";
+import SiteHead from "../../data/siteHead";
+import Loading from "../../component/loading/Loading";
 
 async function fetchPost({ id }: { id: string }) {
-  const client = GraphQLClient.get();
+  const client = GqlClient.client;
 
   try {
     const result = await client.query<{ post: Post }>({
@@ -131,7 +130,7 @@ export default function PostScreen() {
   const [isLoadingFetchPost, setIsLoadingFetchPost] = createSignal(true);
 
   createRenderEffect(() => {
-    SiteHead.setTitle(postData()?.data.attributes.title);
+    SiteHead.title = postData()?.data.attributes.title;
   });
 
   createRenderEffect(async () => {
@@ -187,79 +186,86 @@ export default function PostScreen() {
   }
 
   return (
-    <div class="py-4">
-      {/* Start of blog post content */}
-      <Show when={postData()?.data}>
-        <h1 class="font-bold text-2xl">{postData()!.data.attributes.title}</h1>
-        <p class="mt-2 text-sm text-black/70 dark:text-white/70 transition-colors">
-          Published at{" "}
-          {moment(postData()!.data.attributes.datetime).format("MMMM DD, YYYY")}
-        </p>
-        <p
-          innerHTML={marked.parse(postData()!.data.attributes.content)}
-          class={`max-w-full mt-8 text-justify break-words ${styles.content}`}
-          classList={{ [`${styles["content-dark"]}`]: DarkModeData.get() }}
-        />
-      </Show>
-      {/* End of blog post content */}
+    <>
+      <div class="py-4">
+        {/* Start of blog post content */}
+        <Show when={postData()?.data}>
+          <h1 class="font-bold text-2xl">
+            {postData()!.data.attributes.title}
+          </h1>
+          <p class="mt-2 text-sm text-black/70 dark:text-white/70 transition-colors">
+            Published at{" "}
+            {moment(postData()!.data.attributes.datetime).format(
+              "MMMM DD, YYYY"
+            )}
+          </p>
+          <p
+            innerHTML={marked.parse(postData()!.data.attributes.content)}
+            class={`max-w-full mt-8 text-justify break-words ${styles.content}`}
+            classList={{ [`${styles["content-dark"]}`]: DarkModeData.get() }}
+          />
+        </Show>
+        {/* End of blog post content */}
 
-      {/* Start of blog post navigator */}
-      <Show when={postData()}>
-        <div class="mt-14 flex gap-x-8">
-          <div class="flex-1">
-            <Show when={postData()?.prev?.id}>
-              <A
-                href={`${SitePathData.postPath}/${postData()!.prev!.id}`}
-                class="flex items-center gap-x-2"
-              >
-                <span class="relative top-1 text-7xl">⬅️</span>
-                <p class="line-clamp-2">{postData()!.prev!.attributes.title}</p>
-              </A>
-            </Show>
+        {/* Start of blog post navigator */}
+        <Show when={postData()}>
+          <div class="mt-14 flex gap-x-8">
+            <div class="flex-1">
+              <Show when={postData()?.prev?.id}>
+                <A
+                  href={`${SitePathData.postPath}/${postData()!.prev!.id}`}
+                  class="flex items-center gap-x-2"
+                >
+                  <span class="relative top-1 text-7xl">⬅️</span>
+                  <p class="line-clamp-2">
+                    {postData()!.prev!.attributes.title}
+                  </p>
+                </A>
+              </Show>
+            </div>
+            <div class="flex-1">
+              <Show when={postData()?.next?.id}>
+                <A
+                  href={`${SitePathData.postPath}/${postData()!.next!.id}`}
+                  class="flex items-center gap-x-2"
+                >
+                  <p class="line-clamp-2">
+                    {postData()!.next!.attributes.title}
+                  </p>
+                  <span class="relative top-1 text-7xl">➡️</span>
+                </A>
+              </Show>
+            </div>
           </div>
-          <div class="flex-1">
-            <Show when={postData()?.next?.id}>
-              <A
-                href={`${SitePathData.postPath}/${postData()!.next!.id}`}
-                class="flex items-center gap-x-2"
-              >
-                <p class="line-clamp-2">{postData()!.next!.attributes.title}</p>
-                <span class="relative top-1 text-7xl">➡️</span>
-              </A>
-            </Show>
-          </div>
-        </div>
-      </Show>
-      {/* End of blog post navigator */}
+        </Show>
+        {/* End of blog post navigator */}
 
-      {/* Start of loading post indicator */}
-      <Show when={isLoadingFetchPost() && !postData()}>
-        <div class="w-fit mx-auto flex items-center gap-x-2">
-          <LoadingSpinner />
-          <span>Processing...</span>
-        </div>
-      </Show>
-      {/* End of loading post indicator */}
+        {/* Start of loading post indicator */}
+        <Show when={isLoadingFetchPost() && !postData()}>
+          <Loading />
+        </Show>
+        {/* End of loading post indicator */}
 
-      {/* Start of empty post indicator */}
-      <Show when={!isLoadingFetchPost() && !postData()}>
-        <EmptyIndicator />
-      </Show>
-      {/* End of empty post indicator */}
-    </div>
+        {/* Start of empty post indicator */}
+        <Show when={!isLoadingFetchPost() && !postData()}>
+          <EmptyIndicator />
+        </Show>
+        {/* End of empty post indicator */}
+      </div>
+    </>
   );
 }
 
 function manipulatePostData(postData: PostData) {
   const content = postData.attributes.content.replaceAll(
     "/uploads/",
-    `${ApiData.backendEndpoint}/uploads/`
+    `${import.meta.env.VITE_BACKEND_ENDPOINT}/uploads/`
   );
   return { ...postData, attributes: { ...postData.attributes, content } };
 }
 
-declare type PostData = {
-  id: number;
+declare interface PostData {
+  id: string;
   attributes: {
     title: string;
     datetime: string;
@@ -273,15 +279,15 @@ declare type PostData = {
     };
     publishedAt: string;
   };
-};
+}
 
-declare type Post = {
+declare interface Post {
   data: PostData;
-};
+}
 
-declare type PrevNextPostData = {
-  id: number;
+declare interface PrevNextPostData {
+  id: string;
   attributes: {
     title: string;
   };
-};
+}

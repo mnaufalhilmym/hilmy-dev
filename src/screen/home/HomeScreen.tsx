@@ -11,11 +11,11 @@ import {
   Show,
 } from "solid-js";
 import toast from "solid-toast";
-import { GraphQLClient } from "../../api/graphqlClient";
-import LoadingSpinner from "../../component/loadingSpinner/LoadingSpinner";
+import { GqlClient } from "../../api/gqlClient";
 import Search from "../../component/search/Search";
-import { SiteHead } from "../../data/siteHead";
 import { SitePathData } from "../../data/sitePathData";
+import SiteHead from "../../data/siteHead";
+import Loading from "../../component/loading/Loading";
 
 async function fetchPosts({
   search,
@@ -26,7 +26,7 @@ async function fetchPosts({
   tag?: string;
   page: number;
 }) {
-  const client = GraphQLClient.get();
+  const client = GqlClient.client;
 
   try {
     const result = await client.query<{ posts: Post }>({
@@ -98,7 +98,7 @@ export default function HomeScreen() {
   const [isLoadingFetchPosts, setIsLoadingFetchPosts] = createSignal(true);
 
   createRenderEffect(() => {
-    SiteHead.setTitle();
+    SiteHead.title = undefined;
   });
 
   createRenderEffect(() => {
@@ -267,20 +267,17 @@ export default function HomeScreen() {
         </Show>
         {/* End of button next page */}
 
-        {/* Start of loading post indicator */}
+        {/* Start of loading posts indicator */}
         <Show when={isLoadingFetchPosts()}>
-          <div class="w-fit mx-auto flex items-center gap-x-2">
-            <LoadingSpinner />
-            <span>Processing...</span>
-          </div>
+          <Loading />
         </Show>
-        {/* End of loading post indicator */}
+        {/* End of loading posts indicator */}
 
-        {/* Start of empty post indicator */}
+        {/* Start of empty posts indicator */}
         <Show when={!isLoadingFetchPosts() && processedPostData().length === 0}>
           <span>No posts found.</span>
         </Show>
-        {/* End of empty post indicator */}
+        {/* End of empty posts indicator */}
       </div>
     </>
   );
@@ -332,15 +329,20 @@ function manipulatePostsData({
   return { postData: processedPostData, tags };
 }
 
-declare type PostMeta = {
+declare interface Post {
+  meta: PostMeta;
+  data: PostData[];
+}
+
+declare interface PostMeta {
   pagination: {
     page: number;
     pageCount: number;
   };
-};
+}
 
-declare type PostData = {
-  id: number;
+declare interface PostData {
+  id: string;
   attributes: {
     title: string;
     datetime: string;
@@ -352,19 +354,14 @@ declare type PostData = {
       }[];
     };
   };
-};
+}
 
-declare type Post = {
-  meta: PostMeta;
-  data: PostData[];
-};
-
-declare type ProcessedPostData = {
+declare interface ProcessedPostData {
   year: string;
   posts: {
-    id: number;
+    id: string;
     title: string;
     dayAndMonth: string;
     tags: string[];
   }[];
-};
+}

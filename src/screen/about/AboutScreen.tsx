@@ -2,14 +2,14 @@ import { gql } from "@apollo/client/core";
 import { marked } from "marked";
 import { createRenderEffect, createSignal, Show } from "solid-js";
 import toast from "solid-toast";
-import { GraphQLClient } from "../../api/graphqlClient";
+import { GqlClient } from "../../api/gqlClient";
 import EmptyIndicator from "../../component/indicator/EmptyIndicator";
-import LoadingSpinner from "../../component/loadingSpinner/LoadingSpinner";
-import { SiteHead } from "../../data/siteHead";
 import { SiteTitleData } from "../../data/siteTitleData";
+import SiteHead from "../../data/siteHead";
+import Loading from "../../component/loading/Loading";
 
 async function fetchAbout() {
-  const client = GraphQLClient.get();
+  const client = GqlClient.client;
 
   try {
     const result = await client.query<{ about: { data: AboutData } }>({
@@ -40,7 +40,7 @@ export default function AboutScreen() {
   const [isLoadingFetchAbout, setIsLoadingFetchAbout] = createSignal(true);
 
   createRenderEffect(() => {
-    SiteHead.setTitle(SiteTitleData.aboutTitle);
+    SiteHead.title = SiteTitleData.aboutTitle;
   });
 
   createRenderEffect(async () => {
@@ -62,10 +62,7 @@ export default function AboutScreen() {
 
       {/* Start of loading indicator */}
       <Show when={isLoadingFetchAbout() && !aboutData()}>
-        <div class="w-fit mx-auto flex items-center gap-x-2">
-          <LoadingSpinner />
-          <span>Processing...</span>
-        </div>
+        <Loading />
       </Show>
       {/* End of loading indicator */}
 
@@ -78,8 +75,8 @@ export default function AboutScreen() {
   );
 }
 
-declare type AboutData = {
+declare interface AboutData {
   attributes: {
     content: string;
   };
-};
+}
