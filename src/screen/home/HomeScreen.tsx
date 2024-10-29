@@ -214,7 +214,7 @@ export default function HomeScreen() {
                 >
                   <span>{tag}</span>
                   <Show when={searchParams.tag === tag}>
-                    <span>🗙</span>
+                    <span>✕</span>
                   </Show>
                 </button>
               )}

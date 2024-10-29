@@ -62,14 +62,19 @@ export default function ProjectsScreen() {
         <div class="space-y-3">
           <For each={projectsData()}>
             {(data) => (
-              <A
-                href={data.attributes.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="block"
+              <Show
+                when={data.attributes.href}
+                fallback={<p>{data.attributes.title}</p>}
               >
-                {data.attributes.title}
-              </A>
+                <A
+                  href={data.attributes.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="block"
+                >
+                  {data.attributes.title}
+                </A>
+              </Show>
             )}
           </For>
         </div>

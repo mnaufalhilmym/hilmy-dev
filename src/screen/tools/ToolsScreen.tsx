@@ -85,6 +85,7 @@ export default function ToolsScreen() {
                   href={data.attributes.href}
                   target="_blank"
                   rel="noopener noreferrer"
+                  title={data.attributes.title}
                   class="w-full h-full p-2 flex flex-col hover:bg-teal-100/50 active:bg-teal-100/80 rounded-lg"
                 >
                   <div class="min-h-0 min-w-0 flex-1 w-fit mx-auto flex items-center justify-center">

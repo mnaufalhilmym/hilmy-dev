@@ -53,7 +53,7 @@ export default function Search(props: {
         title="Clear search field"
         class="absolute right-0 px-2 py-1 rounded-md "
       >
-        🗙
+        ✕
       </button>
     </div>
   );
