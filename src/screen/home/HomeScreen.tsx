@@ -205,7 +205,7 @@ export default function HomeScreen() {
           executeSearch={setSearchValue}
         />
         <Show when={tags().length > 0}>
-          <div class="mt-1.5 flex flex-wrap gap-x-2">
+          <div class="mt-1.5 flex flex-wrap gap-2">
             <For each={tags()}>
               {(tag) => (
                 <button
@@ -237,7 +237,7 @@ export default function HomeScreen() {
                       <span class="w-16 flex-none">{post.dayAndMonth}</span>
                       <div>
                         <A href={`/post/${post.id}`}>{post.title}</A>
-                        <div class="flex flex-wrap gap-x-2">
+                        <div class="flex flex-wrap gap-2">
                           <For each={post.tags}>
                             {(tag) => (
                               <span class="px-2 py-0.5 bg-black/10 dark:bg-white/[.35] text-xs rounded-full">

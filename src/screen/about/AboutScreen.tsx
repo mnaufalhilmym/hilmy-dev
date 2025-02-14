@@ -1,5 +1,6 @@
 import { gql } from "@apollo/client/core";
 import { marked } from "marked";
+import DOMPurify from "dompurify";
 import { createRenderEffect, createSignal, Show } from "solid-js";
 import toast from "solid-toast";
 import { GqlClient } from "../../api/gqlClient";
@@ -36,7 +37,7 @@ async function fetchAbout() {
 }
 
 export default function AboutScreen() {
-  const [aboutData, setAboutData] = createSignal<AboutData>();
+  const [aboutHTML, setAboutHTML] = createSignal<string>();
   const [isLoadingFetchAbout, setIsLoadingFetchAbout] = createSignal(true);
 
   createRenderEffect(() => {
@@ -45,9 +46,11 @@ export default function AboutScreen() {
 
   createRenderEffect(async () => {
     setIsLoadingFetchAbout(true);
-    const aboutData = await fetchAbout();
-    if (aboutData?.data) {
-      setAboutData(aboutData.data);
+    const aboutData = (await fetchAbout())?.data;
+    if (aboutData) {
+      setAboutHTML(
+        DOMPurify.sanitize(await marked.parse(aboutData.attributes.content))
+      );
     }
     setIsLoadingFetchAbout(false);
   });
@@ -55,19 +58,19 @@ export default function AboutScreen() {
   return (
     <>
       {/* Start of content */}
-      <Show when={aboutData()?.attributes.content}>
-        <div innerHTML={marked.parse(aboutData()!.attributes.content)} />
+      <Show when={aboutHTML()}>
+        <div innerHTML={aboutHTML()} />
       </Show>
       {/* End of content */}
 
       {/* Start of loading indicator */}
-      <Show when={isLoadingFetchAbout() && !aboutData()}>
+      <Show when={isLoadingFetchAbout() && !aboutHTML()}>
         <Loading />
       </Show>
       {/* End of loading indicator */}
 
       {/* Start of empty data indicator */}
-      <Show when={!isLoadingFetchAbout() && !aboutData()}>
+      <Show when={!isLoadingFetchAbout() && !aboutHTML()}>
         <EmptyIndicator />
       </Show>
       {/* End of empty data indicator */}

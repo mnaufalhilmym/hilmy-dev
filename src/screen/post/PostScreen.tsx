@@ -1,6 +1,7 @@
 import { gql } from "@apollo/client/core";
 import { A, useNavigate, useParams } from "@solidjs/router";
 import { marked } from "marked";
+import DOMPurify from "dompurify";
 import moment from "moment";
 import {
   createRenderEffect,
@@ -140,7 +141,7 @@ export default function PostScreen() {
     if (postData?.post) {
       setPostData({
         prev: postData.prev,
-        data: manipulatePostData(postData.post),
+        data: await manipulatePostData(postData.post),
         next: postData.next,
       });
     }
@@ -200,7 +201,7 @@ export default function PostScreen() {
             )}
           </p>
           <p
-            innerHTML={marked.parse(postData()!.data.attributes.content)}
+            innerHTML={postData()!.data.attributes.content}
             class={`max-w-full mt-8 text-justify break-words ${styles.content}`}
             classList={{ [`${styles["content-dark"]}`]: DarkModeData.get() }}
           />
@@ -256,8 +257,10 @@ export default function PostScreen() {
   );
 }
 
-function manipulatePostData(postData: PostData) {
-  const content = postData.attributes.content.replaceAll(
+async function manipulatePostData(postData: PostData) {
+  const content = DOMPurify.sanitize(
+    await marked.parse(postData.attributes.content)
+  ).replaceAll(
     "/uploads/",
     `${import.meta.env.VITE_BACKEND_ENDPOINT}/uploads/`
   );

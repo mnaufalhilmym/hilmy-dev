@@ -22,7 +22,7 @@ export default function MainWrapper(props: Props) {
       <Head />
 
       <div classList={{ dark: DarkModeData.get() }}>
-        <div class="min-w-screen min-h-screen p-8 dark:bg-black font-mono dark:text-white transition-colors">
+        <div class="min-h-screen p-8 dark:bg-black font-mono dark:text-white transition-colors">
           <div class="max-w-screen-sm mx-auto">
             <Toaster position="top-center" />
             <Header />

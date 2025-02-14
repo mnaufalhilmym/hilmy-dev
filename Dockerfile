@@ -22,5 +22,4 @@ WORKDIR /app
 COPY --from=deps-prod /app/package.json .
 COPY --from=deps-prod /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
-COPY ./src/robots.txt ./dist
 CMD ["./node_modules/serve/build/main.js", "-s", "dist" ,"-l", "3000"]
