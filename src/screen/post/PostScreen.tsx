@@ -2,7 +2,7 @@ import { gql } from "@apollo/client/core";
 import { A, useNavigate, useParams } from "@solidjs/router";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
-import moment from "moment";
+import { DateTime } from "luxon";
 import {
   createRenderEffect,
   createSignal,
@@ -196,8 +196,8 @@ export default function PostScreen() {
           </h1>
           <p class="mt-2 text-sm text-black/70 dark:text-white/70 transition-colors">
             Published at{" "}
-            {moment(postData()!.data.attributes.datetime).format(
-              "MMMM DD, YYYY"
+            {DateTime.fromISO(postData()!.data.attributes.datetime).toFormat(
+              "LLLL dd, yyyy"
             )}
           </p>
           <p

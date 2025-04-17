@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client/core";
 import { A, useSearchParams } from "@solidjs/router";
-import moment from "moment";
+import { DateTime } from "luxon";
 import {
   createMemo,
   createRenderEffect,
@@ -301,10 +301,10 @@ function manipulatePostsData({
   const tags = [...prevTags];
 
   newPostData.forEach((data) => {
-    const date = moment(data.attributes.datetime);
-    const year = date.format("YYYY");
+    const date = DateTime.fromISO(data.attributes.datetime);
+    const year = date.toFormat("yyyy");
     const index = processedPostData.findIndex((pdata) => pdata.year === year);
-    const day = Number(date.format("DD"));
+    const day = Number(date.toFormat("dd"));
     if (index === -1) {
       processedPostData.push({
         year,
@@ -316,10 +316,10 @@ function manipulatePostsData({
     ].posts.push({
       id: data.id,
       title: data.attributes.title,
-      dayAndMonth: `${date.format("MMM")} ${day < 10 ? `0${day}` : day}`,
+      dayAndMonth: `${date.toFormat("LLL")} ${day < 10 ? `0${day}` : day}`,
       tags: data.attributes.post_tags.data.map((tag) => tag.attributes.title),
     });
-    data.attributes.post_tags.data.findIndex((tag) => {
+    data.attributes.post_tags.data.forEach((tag) => {
       const index = tags.indexOf(tag.attributes.title);
       if (index === -1) {
         tags.push(tag.attributes.title);
